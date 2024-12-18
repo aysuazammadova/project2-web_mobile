@@ -1,0 +1,51 @@
+{
+  "recipes": [
+    {
+      "id": "1",
+      "title": "Updated Spaghetti Carbonara",
+      "description": "A creamy pasta dish with pancetta.",
+      "ingredients": [
+        "Spaghetti",
+        "Eggs",
+        "Cheese",
+        "Pancetta"
+      ],
+      "steps": [
+        "Boil pasta",
+        "Cook pancetta",
+        "Mix eggs and cheese",
+        "Combine all"
+      ],
+      "tags": [
+        "Italian",
+        "Comfort Food"
+      ],
+      "difficulty": "Medium",
+      "lastUpdated": "2024-12-19T14:30:00Z"
+    },
+    {
+      "id": "0cea",
+      "title": "Chocolate Cake",
+      "description": "A rich and moist chocolate cake.",
+      "ingredients": [
+        "Flour",
+        "Cocoa Powder",
+        "Sugar",
+        "Eggs",
+        "Butter"
+      ],
+      "steps": [
+        "Mix dry ingredients",
+        "Add wet ingredients",
+        "Bake at 350°F"
+      ],
+      "tags": [
+        "Dessert",
+        "Baking"
+      ],
+      "difficulty": "Hard",
+      "lastUpdated": "2024-12-19T12:00:00Z"
+    }
+  ],
+  "messages": []
+}
