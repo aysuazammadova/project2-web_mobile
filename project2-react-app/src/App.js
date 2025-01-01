@@ -1,7 +1,9 @@
+import Home from "./pages/Home";
+
 function App() {
   return (
-    <div>
-      <h1>Recipe Manager</h1>
+    <div className="App">
+      <Home />
     </div>
   );
 }
