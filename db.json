@@ -47,5 +47,12 @@
       "lastUpdated": "2024-12-19T12:00:00Z"
     }
   ],
-  "messages": []
+  "messages": [
+    {
+      "id": "e50a",
+      "email": "leylaeynullayeva05@gmail.com",
+      "subject": "Testing",
+      "content": "Just testing"
+    }
+  ]
 }
