@@ -15,6 +15,11 @@ function RecipePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("");
+  const [sortOption, setSortOption] = useState("lastUpdated");
+
   useEffect(() => {
     fetchRecipes();
   }, []);
@@ -22,7 +27,10 @@ function RecipePage() {
   const fetchRecipes = async () => {
     try {
       const response = await fetch("http://localhost:3000/recipes");
-      const data = await response.json();
+      let data = await response.json();
+
+      data.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+
       setRecipes(data);
     } catch (error) {
       console.error("Error fetching recipes:", error);
@@ -99,9 +107,52 @@ function RecipePage() {
     }
   };
 
+  const filteredRecipes = recipes.filter((recipe) => 
+    (searchQuery === "" || 
+      recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipe.ingredients.join(", ").toLowerCase().includes(searchQuery.toLowerCase())) && 
+    (selectedTag === "" || recipe.tags.includes(selectedTag)) && 
+    (selectedDifficulty === "" || recipe.difficulty === selectedDifficulty)
+  );
+
+  const sortedRecipes = [...filteredRecipes].sort((a, b) => {
+    if (sortOption === "title") return a.title.localeCompare(b.title);
+    if (sortOption === "difficulty") return a.difficulty.localeCompare(b.difficulty);
+    return new Date(b.lastUpdated) - new Date(a.lastUpdated);
+  });
+
   return (
     <div className="recipe-page">
       <h1>Recipe Manager</h1>
+
+      <input 
+        type="text"
+        placeholder="Search recipes..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+
+      <select onChange={(e) => setSelectedTag(e.target.value)}>
+        <option value="">All Tags</option>
+        <option value="Dessert">Dessert</option>
+        <option value="Vegetarian">Vegetarian</option>
+        <option value="Quick Meal">Quick Meal</option>
+      </select>
+
+      <select onChange={(e) => setSelectedDifficulty(e.target.value)}>
+        <option value="">All Difficulties</option>
+        <option value="Easy">Easy</option>
+        <option value="Medium">Medium</option>
+        <option value="Hard">Hard</option>
+      </select>
+
+      <select onChange={(e) => setSortOption(e.target.value)}>
+        <option value="lastUpdated">Sort by Last Updated</option>
+        <option value="title">Sort by Title</option>
+        <option value="difficulty">Sort by Difficulty</option>
+      </select>
+
       <form className="recipe-form" onSubmit={handleSubmit}>
         <input
           type="text"
@@ -148,7 +199,7 @@ function RecipePage() {
       </form>
 
       <div className="recipe-list">
-        {recipes.map((recipe) => (
+        {sortedRecipes.map((recipe) => (
           <div
             className="recipe-card"
             key={recipe.id}
