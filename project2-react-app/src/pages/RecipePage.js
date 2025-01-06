@@ -25,15 +25,25 @@ function RecipePage() {
   }, []);
 
   const fetchRecipes = async () => {
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/recipes");
-      let data = await response.json();
+      const savedRecipes = localStorage.getItem("recipes");
+      if (savedRecipes){
+        setRecipes(JSON.parse(savedRecipes));
+      } else {
+        const response = await fetch("http://localhost:3000/recipes");
+        let data = await response.json();
 
-      data.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+        data.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
 
-      setRecipes(data);
+        setRecipes(data);
+      }
+      setError(null);
+      
     } catch (error) {
       console.error("Error fetching recipes:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,6 +57,7 @@ function RecipePage() {
       lastUpdated: new Date().toISOString(),
     };
 
+    setLoading(true);
     try {
       if (isEditing) {
         await fetch(`http://localhost:3000/recipes/${editId}`, {
@@ -67,6 +78,10 @@ function RecipePage() {
           body: JSON.stringify(updatedRecipe),
         });
       }
+
+      const updatedRecipes = [...recipes, updatedRecipe];
+      localStorage.setItem("recipes", JSON.stringify(updatedRecipes));
+
       setForm({
         title: "",
         description: "",
@@ -78,7 +93,10 @@ function RecipePage() {
       });
       fetchRecipes();
     } catch (error) {
+      setError("Error saving recipe. Please try again.");
       console.error("Error saving recipe:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,13 +115,22 @@ function RecipePage() {
   };
 
   const handleDelete = async (id) => {
+    setLoading(true);
     try {
       await fetch(`http://localhost:3000/recipes/${id}`, {
         method: "DELETE",
       });
+
+      const updatedRecipes = recipes.filter((recipe) => recipe.id !== id);
+      localStorage.setItem("recipes", JSON.stringify(updatedRecipes));
+
+
       fetchRecipes();
     } catch (error) {
+      setError("Error deleting recipe. Please try again.");
       console.error("Error deleting recipe:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -125,6 +152,9 @@ function RecipePage() {
   return (
     <div className="recipe-page">
       <h1>Recipe Manager</h1>
+
+      {error && <p className="error">{error}</p>}
+
 
       <input 
         type="text"
@@ -199,6 +229,7 @@ function RecipePage() {
       </form>
 
       <div className="recipe-list">
+        {loading && <p>Loading...</p>}
         {sortedRecipes.map((recipe) => (
           <div
             className="recipe-card"
