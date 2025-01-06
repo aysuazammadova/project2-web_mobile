@@ -43,8 +43,39 @@
   padding: 15px;
   background: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recipe-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .recipe-card h3 {
   margin: 0 0 10px;
+}
+
+.card-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.card-buttons button {
+  padding: 5px 10px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.card-buttons button:first-of-type {
+  background-color: #007bff;
+  color: white;
+}
+
+.card-buttons button:last-of-type {
+  background-color: #dc3545;
+  color: white;
 }

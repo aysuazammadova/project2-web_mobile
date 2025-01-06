@@ -149,7 +149,11 @@ function RecipePage() {
 
       <div className="recipe-list">
         {recipes.map((recipe) => (
-          <div className="recipe-card" key={recipe.id}>
+          <div
+            className="recipe-card"
+            key={recipe.id}
+            onMouseEnter={() => console.log("Hovering over:", recipe.title)}
+          >
             <h3>{recipe.title}</h3>
             <p>{recipe.description}</p>
             <p><strong>Ingredients:</strong> {recipe.ingredients.join(", ")}</p>
@@ -157,8 +161,10 @@ function RecipePage() {
             <p><strong>Tags:</strong> {recipe.tags.join(", ")}</p>
             <p><strong>Difficulty:</strong> {recipe.difficulty}</p>
             <p><strong>Last Updated:</strong> {new Date(recipe.lastUpdated).toLocaleString()}</p>
-            <button onClick={() => handleEdit(recipe)}>Edit</button>
-            <button onClick={() => handleDelete(recipe.id)}>Delete</button>
+            <div className="card-buttons">
+              <button onClick={() => handleEdit(recipe)}>Edit</button>
+              <button onClick={() => handleDelete(recipe.id)}>Delete</button>
+            </div>
           </div>
         ))}
       </div>
