@@ -13,7 +13,7 @@ function ContactMe() {
     const newMessage = { email, subject, content };
     
     try {
-      const response = await fetch("http://localhost:3000/messages", {
+      const response = await fetch("http://localhost:3000/#/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
