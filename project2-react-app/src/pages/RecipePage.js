@@ -22,7 +22,8 @@ function RecipePage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const [uniqueTags, setUniqueTags] = useState([]);
+  const [tag, setTag] = useState("");
   useEffect(() => {
     fetchRecipes();
   }, []);
@@ -31,16 +32,17 @@ function RecipePage() {
     setLoading(true);
     try {
       const savedRecipes = localStorage.getItem("recipes");
-      if (savedRecipes){
-        setRecipes(JSON.parse(savedRecipes));
-      } else {
-        const response = await fetch("http://localhost:3000/recipes");
-        let data = await response.json();
+      let data = savedRecipes ? JSON.parse(savedRecipes) : [];
 
-        data.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
+      const extractedTags = new Set();
+      data.forEach((recipe) => {
+        if (recipe.tags && Array.isArray(recipe.tags)) {
+          recipe.tags.forEach((tag) => extractedTags.add(tag.toLowerCase()));
+        }
+      });
 
-        setRecipes(data);
-      }
+      setUniqueTags([...extractedTags]);
+      setRecipes(data);
       setError(null);
       
     } catch (error) {
@@ -52,18 +54,20 @@ function RecipePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const newTags = (form.tags || "").split(",").map(tag => tag.trim().toLowerCase());
+
     const updatedRecipe = {
       ...form,
       ingredients: form.ingredients.split(",").map((item) => item.trim()),
       steps: form.steps.split(".").map((item) => item.trim()),
-      tags: form.tags.split(",").map((item) => item.trim()),
+      tags: newTags,
       lastUpdated: new Date().toISOString(),
     };
 
     setLoading(true);
     try {
       if (isEditing) {
-        await fetch(`http://localhost:3000/recipes/${editId}`, {
+        await fetch(`http://localhost:3000/#/recipes/${editId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -73,7 +77,7 @@ function RecipePage() {
         setIsEditing(false);
         setEditId(null);
       } else {
-        await fetch("http://localhost:3000/recipes", {
+        await fetch("http://localhost:3000/#/recipes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -82,8 +86,20 @@ function RecipePage() {
         });
       }
 
-      const updatedRecipes = [...recipes, updatedRecipe];
+      let updatedRecipes;
+      if (isEditing) {
+        updatedRecipes = recipes.map((recipe) =>
+          recipe.id === editId ? updatedRecipe : recipe
+        );
+      } else {
+        updatedRecipes = [...recipes, { ...updatedRecipe, id: Date.now() }];
+      }
+
       localStorage.setItem("recipes", JSON.stringify(updatedRecipes));
+      setRecipes(updatedRecipes);
+
+      const updatedTagsSet = new Set([...uniqueTags, ...newTags]);
+      setUniqueTags([...updatedTagsSet]);
 
       setForm({
         title: "",
@@ -120,7 +136,7 @@ function RecipePage() {
   const handleDelete = async (id) => {
     setLoading(true);
     try {
-      await fetch(`http://localhost:3000/recipes/${id}`, {
+      await fetch(`http://localhost:3000/#/recipes/${id}`, {
         method: "DELETE",
       });
 
@@ -146,9 +162,17 @@ function RecipePage() {
     (selectedDifficulty === "" || recipe.difficulty === selectedDifficulty)
   );
 
+  const difficultyOrder = {
+    Easy: 1,
+    Medium: 2,
+    Hard: 3,
+  }
+
   const sortedRecipes = [...filteredRecipes].sort((a, b) => {
     if (sortOption === "title") return a.title.localeCompare(b.title);
-    if (sortOption === "difficulty") return a.difficulty.localeCompare(b.difficulty);
+    if (sortOption === "difficulty") {
+      return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+    }
     return new Date(b.lastUpdated) - new Date(a.lastUpdated);
   });
 
@@ -168,9 +192,11 @@ function RecipePage() {
 
       <select onChange={(e) => setSelectedTag(e.target.value)}>
         <option value="">All Tags</option>
-        <option value="Dessert">Dessert</option>
-        <option value="Vegetarian">Vegetarian</option>
-        <option value="Quick Meal">Quick Meal</option>
+        {uniqueTags && uniqueTags.map((tag, index) => (
+          <option key={index} value={tag}>
+            {tag.charAt(0).toUpperCase() + tag.slice(1)}
+          </option>
+        ))}
       </select>
 
       <select onChange={(e) => setSelectedDifficulty(e.target.value)}>
