@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import "./RecipePage.css";
 
 function RecipePage() {
@@ -19,6 +19,9 @@ function RecipePage() {
   const [selectedTag, setSelectedTag] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const [sortOption, setSortOption] = useState("lastUpdated");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchRecipes();
